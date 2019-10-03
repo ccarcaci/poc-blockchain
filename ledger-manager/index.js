@@ -4,7 +4,7 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
-const { SHA3, } = require("sha3")
+const { SHA3 } = require("sha3")
 
 const httpsOptions = {
   key: fs.readFileSync("./certs/privkey.pem"),
@@ -50,7 +50,7 @@ const ledgerContent = [
   },
 ]
 const rootRoute = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain", })
+  response.writeHead(200, { "Content-Type": "text/plain" })
   response.write("Ledger Manager")
   response.end()
 }
@@ -60,12 +60,12 @@ const fallbackRoute = (response) => {
 }
 
 const ledger = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain", })
+  response.writeHead(200, { "Content-Type": "text/plain" })
   response.write(JSON.stringify(ledgerContent))
   response.end()
 }
 const currentPage = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain", })
+  response.writeHead(200, { "Content-Type": "text/plain" })
   response.write(JSON.stringify(ledgerContent.slice(-1).pop()))
   response.end()
 }
@@ -74,7 +74,7 @@ const addPage = async (request, response) => {
   console.log(`Received add page request, page is ${JSON.stringify(pageContent)}`)
   const powVerified = verifyPOW(pageContent)
 
-  if(powVerified) { response.writeHead(200, { "Content-Type": "text/plain", }) }
+  if(powVerified) { response.writeHead(200, { "Content-Type": "text/plain" }) }
   else { response.writeHead(422) }
 
   response.end()

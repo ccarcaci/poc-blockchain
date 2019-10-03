@@ -1,7 +1,7 @@
 "use strict"
 
 const https = require("https")
-const { SHA3, } = require("sha3")
+const { SHA3 } = require("sha3")
 const url = require("url")
 require("process").env.NODE_TLS_REJECT_UNAUTHORIZED = 0
 
