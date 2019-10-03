@@ -2,36 +2,36 @@
 
 const https = require("https")
 
-let currentPageContent = getCurrentPageContent()
-let currentHash = currentPageContent.currentPageHash
-let lifeSpan = 999999
+const runMiner = async () => {
+  try {
+    let lifeSpan = 9999
 
-while(--lifeSpan) {
-  const pageContent = addPadding(currentPageContent)
+    while(--lifeSpan) {
+      // eslint-disable-next-line no-await-in-loop
+      const currentPageContent = await getCurrentPageContent()
+      const pageContent = addPadding(currentPageContent)
 
-  if(verifyProofOfWork(pageContent)) { addPage(pageContent) }
-
-  const newPageHash = getCurrentHash()
-
-  if(currentHash !== newPageHash) {
-    currentHash = newPageHash
-    currentPageContent = getCurrentPageContent()
+      if(verifyProofOfWork(pageContent)) {
+        addPage(pageContent)
+      }
+    }
+  } catch(error) {
+    console.log(error.message)
   }
 }
+
+runMiner()
 
 // Miner Functions
 
 const getCurrentPageContent = () => doGet("https://ledger-manager/current-page").pageContent
 const addPadding = (pageContent) => pageContent.proofOfWork.padding = uuidv4()
-const verifyProofOfWork = (pageContent) => sha3(pageContent).firstTwoChars === "42"
+const verifyProofOfWork = (pageContent) => sha3(pageContent).slice(0, 1) === "42"
 const addPage = (pageContent) => doPost("https://ledger-manager/add-page", pageContent)
-const getCurrentHash = doGet("https://ledger-manager/current-page").currentPageHash
-const uuidv4 = () => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (chars) => {
-    const random = Math.random() * 16 | 0, value = chars === "x" ? random : (random & 0x3 | 0x8)
-    return value.toString(16)
-  })
-}
+const uuidv4 = () => "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (chars) => {
+  const random = Math.random() * 16 | 0, value = chars === "x" ? random : (random & 0x3 | 0x8)
+  return value.toString(16)
+})
 const sha3 = (pageContent) => pageContent
 
 // Https Functions

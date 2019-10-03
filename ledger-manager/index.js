@@ -68,7 +68,10 @@ const ledger = (response) => {
 }
 const currentPage = (response) => {
   response.writeHead(200, { "Content-Type": "text/plain", })
-  response.write(JSON.stringify(ledgerContent.last()))
+
+  let lastPage
+  ledgerContent.length <= 0 && (lastPage = {}) || (lastPage = ledgerContent.pop())
+  response.write(JSON.stringify(lastPage))
   response.end()
 }
 const addPage = (request, response) => {
