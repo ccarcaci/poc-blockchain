@@ -30,26 +30,27 @@ httpServer.listen(httpPort, () => console.log(`HTTP Server on port ${httpPort}`)
 httpsServer.listen(httpsPort, () => console.log(`HTTPS Server on port ${httpsPort}`))
 
 // Routing Functions
-
+/*
 const ledgerExample = [
   {
     pageContent: {
       transactions: [
         {
           payer: "",
-          payee: ""
-        }
+          payee: "",
+        },
       ],
       previousPageHash: "",
       proofOfWork: {
-        padding: ""
+        padding: "",
       },
     },
-    currentPageHash: ""
-  }
+    currentPageHash: "",
+  },
 ]
+*/
 
-const ledger = []
+const ledgerContent = []
 const rootRoute = (response) => {
   response.writeHead(200, { "Content-Type": "text/plain", })
   response.write("Ledger Manager")
@@ -61,24 +62,30 @@ const fallbackRoute = (response) => {
 }
 
 const ledger = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain" })
-  response.write(JSON.stringify(ledger))
+  response.writeHead(200, { "Content-Type": "text/plain", })
+  response.write(JSON.stringify(ledgerContent))
   response.end()
 }
 const currentPage = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain" })
-  response.write(JSON.stringify(ledger.last()))
+  response.writeHead(200, { "Content-Type": "text/plain", })
+  response.write(JSON.stringify(ledgerContent.last()))
   response.end()
 }
 const addPage = (request, response) => {
   const page = getBody(request)
-  const powVerified = verifyPOW(page.page)
+  const powVerified = verifyPOW(page.pageContent)
 
-  if(powVerified) { response.writeHead(200, { "Content-Type": "text/plain" }) }
+  if(powVerified) { response.writeHead(200, { "Content-Type": "text/plain", }) }
   else { response.writeHead(422) }
 
   response.end()
 }
+const verifyPOW = (pageContent) => {
+  const hash = sha3(pageContent)
+
+  return hash.slice(0, 1) === "42"
+}
+const sha3 = (pageContent) => pageContent // Todo implement
 
 // Server Functions
 
