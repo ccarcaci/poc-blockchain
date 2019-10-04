@@ -4,6 +4,7 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
+const { SHA3, } = require("sha3")
 
 const httpsOptions = {
   key: fs.readFileSync("./certs/privkey.pem"),
@@ -30,8 +31,8 @@ httpServer.listen(httpPort, () => console.log(`HTTP Server on port ${httpPort}`)
 httpsServer.listen(httpsPort, () => console.log(`HTTPS Server on port ${httpsPort}`))
 
 // Routing Functions
-/*
-const ledgerExample = [
+
+const ledgerContent = [
   {
     pageContent: {
       transactions: [
@@ -48,9 +49,6 @@ const ledgerExample = [
     currentPageHash: "",
   },
 ]
-*/
-
-const ledgerContent = []
 const rootRoute = (response) => {
   response.writeHead(200, { "Content-Type": "text/plain", })
   response.write("Ledger Manager")
@@ -68,27 +66,27 @@ const ledger = (response) => {
 }
 const currentPage = (response) => {
   response.writeHead(200, { "Content-Type": "text/plain", })
-
-  let lastPage
-  ledgerContent.length <= 0 && (lastPage = {}) || (lastPage = ledgerContent.pop())
-  response.write(JSON.stringify(lastPage))
+  response.write(JSON.stringify(ledgerContent.slice(-1).pop()))
   response.end()
 }
-const addPage = (request, response) => {
-  const page = getBody(request)
-  const powVerified = verifyPOW(page.pageContent)
+const addPage = async (request, response) => {
+  const pageContent = await getBody(request)
+  console.log(`Received add page request, page is ${JSON.stringify(pageContent)}`)
+  const powVerified = verifyPOW(pageContent)
 
   if(powVerified) { response.writeHead(200, { "Content-Type": "text/plain", }) }
   else { response.writeHead(422) }
 
   response.end()
 }
-const verifyPOW = (pageContent) => {
-  const hash = sha3(pageContent)
-
-  return hash.slice(0, 1) === "42"
+const verifyPOW = (pageContent) => sha3(pageContent).slice(0, 1) === "4"
+const sha3 = (pageContent) => {
+  const hash = new SHA3(512)
+  hash.update(JSON.stringify(pageContent))
+  const digest = hash.digest().toString("hex")
+  console.log(`Digest is: ${digest}`)
+  return digest
 }
-const sha3 = (pageContent) => pageContent // Todo implement
 
 // Server Functions
 

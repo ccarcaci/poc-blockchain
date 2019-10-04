@@ -25,5 +25,9 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "dependencies": {
+    "sha3": "^2.0.7",
+    "url": "^0.11.0"
   }
 }
