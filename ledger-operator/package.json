@@ -1,0 +1,34 @@
+{
+  "name": "templating-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon index.js",
+    "linter": "eslint --fix ./",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "EUPL-1.2",
+  "devDependencies": {
+    "eslint": "^6.3.0",
+    "husky": "^3.0.5",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.2.5",
+    "nodemon": "^1.18.7"
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "npm run linter",
+      "git add ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "dependencies": {
+    "sha3": "^2.0.7"
+  }
+}
