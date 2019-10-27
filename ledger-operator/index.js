@@ -14,19 +14,23 @@ const httpsOptions = {
 const httpPort = 3000
 const httpsPort = 4443
 
-const routing = (request, response) => {
+const routing = (request, response, knownNodes) => {
   const action = url.parse(request.url)
-
+  
   if(action.pathname === "/") { rootRoute(response) }
   else if(request.method === "POST" && action.pathname === "/new-nodes") { addNodesAndPropagate(request, esponse) }
   else { fallbackRoute(response) }
 }
 
-const httpServer = http.createServer((req, res) => routing(req, res))
-const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res))
+const refNodeUrl = config.REF_NODE_URL
 
-httpServer.listen(httpPort, () => console.log(`HTTP Server on port ${httpPort}`))
-httpsServer.listen(httpsPort, () => console.log(`HTTPS Server on port ${httpsPort}`))
+propagate(refNodeUrl, (knownNodes) => {
+  const httpServer = http.createServer((req, res) => routing(req, res, knownNodes))
+  const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res, knownNodes))
+
+  httpServer.listen(httpPort, () => console.log(`HTTP Server on port ${httpPort}`))
+  httpsServer.listen(httpsPort, () => console.log(`HTTPS Server on port ${httpsPort}`))
+})
 
 // Routing Functions
 
