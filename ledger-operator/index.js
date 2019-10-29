@@ -6,6 +6,8 @@ const url = require("url")
 const fs = require("fs")
 const { propagate } = require("./nodes.manager")
 
+const config = {}
+
 const httpsOptions = {
   key: fs.readFileSync("./certs/privkey.pem"),
   cert: fs.readFileSync("./certs/certificate.crt"),
@@ -14,11 +16,11 @@ const httpsOptions = {
 const httpPort = 3000
 const httpsPort = 4443
 
-const routing = (request, response, knownNodes) => {
+const routing = (request, response) => {
   const action = url.parse(request.url)
-  
+
   if(action.pathname === "/") { rootRoute(response) }
-  else if(request.method === "POST" && action.pathname === "/new-nodes") { addNodesAndPropagate(request, esponse) }
+  else if(request.method === "POST" && action.pathname === "/new-nodes") { addNodesAndPropagate(request, response) }
   else { fallbackRoute(response) }
 }
 
@@ -34,6 +36,14 @@ propagate(refNodeUrl, (knownNodes) => {
 
 // Routing Functions
 
+const rootRoute = (response) => {
+  response.writeHead(200, { "Content-Type": "text/plain" })
+  response.end()
+}
+const fallbackRoute = (response) => {
+  response.writeHead(404)
+  response.end()
+}
 const addNodesAndPropagate = async (request, response) => {
   const nodes = await getBody(request)
 
@@ -45,7 +55,8 @@ const addNodesAndPropagate = async (request, response) => {
 }
 
 // Server Functions
-const knownNodes = []
+
+let knownNodes = []
 const getBody = (request) => new Promise((resolve) => {
   let body = []
   request.on("data", (chunk) => body+=chunk)

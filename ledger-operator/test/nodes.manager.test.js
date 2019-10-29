@@ -5,5 +5,5 @@ test("Call propagate returns the concatenation", () => {
 })
 
 test("Ask to ref node its list of knownNodes", () => {
-  
+
 })
