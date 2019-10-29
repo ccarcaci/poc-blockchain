@@ -4,7 +4,8 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
-const { propagate } = require("./nodes.manager")
+const { Store, Pure } = require("./nodes.manager")
+const { log } = require("./logger")
 
 const config = {}
 
@@ -26,12 +27,13 @@ const routing = (request, response) => {
 
 const refNodeUrl = config.REF_NODE_URL
 
-propagate(refNodeUrl, (knownNodes) => {
-  const httpServer = http.createServer((req, res) => routing(req, res, knownNodes))
-  const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res, knownNodes))
+Pure.initializeKnownNodes(refNodeUrl, (knownNodes) => {
+  Store.save(knownNodes)
+  const httpServer = http.createServer((req, res) => routing(req, res))
+  const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res))
 
-  httpServer.listen(httpPort, () => console.log(`HTTP Server on port ${httpPort}`))
-  httpsServer.listen(httpsPort, () => console.log(`HTTPS Server on port ${httpsPort}`))
+  httpServer.listen(httpPort, () => log.info(`HTTP Server on port ${httpPort}`))
+  httpsServer.listen(httpsPort, () => log.info(`HTTPS Server on port ${httpsPort}`))
 })
 
 // Routing Functions
@@ -45,18 +47,17 @@ const fallbackRoute = (response) => {
   response.end()
 }
 const addNodesAndPropagate = async (request, response) => {
-  const nodes = await getBody(request)
-
-  knownNodes = propagate(nodes, request.url, knownNodes)
+  const newNodes = await getBody(request)
+  const knownNodes = Store.read()
+  const allNodes = Pure.propagate(request.url, newNodes, knownNodes)
 
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(JSON.stringify(knownNodes))
+  response.write(JSON.stringify(allNodes))
   response.end()
 }
 
 // Server Functions
 
-let knownNodes = []
 const getBody = (request) => new Promise((resolve) => {
   let body = []
   request.on("data", (chunk) => body+=chunk)
