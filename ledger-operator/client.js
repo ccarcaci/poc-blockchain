@@ -20,11 +20,11 @@ module.exports = {
         response.on("data", (chunk) => data += chunk)
         response.on("end", () => resolve(JSON.parse(data)))
       })
-      request.on("error", (err) => reject(err))
+      request.on("error", (error) => reject(error))
       request.end()
     })
   }),
-  doPost: (completeUrl, content) => {
+  doPost: (completeUrl, content) => new Promise((resolve, reject) => {
     detectProtocol(completeUrl, (protocol) => {
       const jsonStringContent = JSON.stringify(content)
       const action = url.parse(completeUrl)
@@ -40,9 +40,14 @@ module.exports = {
         },
       }
 
-      const request = protocol.request(options)
+      const request = protocol.request(options, (response) => {
+        let data = ""
+        response.on("data", (chunk) => data += chunk)
+        response.on("end", () => resolve(JSON.parse(data)))
+      })
+      request.on("error", (error) => reject(error))
       request.write(jsonStringContent)
       request.end()
     })
-  },
+  }),
 }
