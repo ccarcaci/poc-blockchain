@@ -10,8 +10,6 @@ const detectProtocol = (completeUrl, callback) => {
   callback(http)
 }
 
-// Https Functions
-
 module.exports = {
   doGet: (completeUrl) => new Promise((resolve, reject) => {
     detectProtocol(completeUrl, (protocol) => {

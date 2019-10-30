@@ -47,13 +47,19 @@ const fallbackRoute = (response) => {
   response.end()
 }
 const addNodesAndPropagate = async (request, response) => {
-  const newNodes = await getBody(request)
-  const knownNodes = Store.read()
-  const allNodes = Pure.propagate(request.url, newNodes, knownNodes)
+  const knownNodes = Store.load()
 
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(JSON.stringify(allNodes))
+  response.write(JSON.stringify(knownNodes))
   response.end()
+
+  const newNodes = await getBody(request).catch((error) => log.error(error))
+  const unknownNodes = Pure.unknowns(request.url, newNodes, knownNodes)
+
+  if(unknownNodes.size <= 0) { return }
+
+  const allNodes = Pure.merge(request.url, newNodes, knownNodes)
+  Pure.propagate(allNodes, (receivedNodes) => Store.save(Pure.join(receivedNodes, allNodes)))
 }
 
 // Server Functions
