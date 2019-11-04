@@ -4,11 +4,13 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
+const dotenv = require("dotenv")
 const { Store, Pure } = require("./nodes.manager")
 const { log } = require("./logger")
 
-const config = {}
+dotenv.config()
 
+const config = require("process").env
 const httpsOptions = {
   key: fs.readFileSync("./certs/privkey.pem"),
   cert: fs.readFileSync("./certs/certificate.crt"),
