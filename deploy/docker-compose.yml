@@ -1,0 +1,14 @@
+version: "3"
+services:
+  ledger-operator:
+    container_name: blockchain.ledger-operator
+    image: node:alpine
+    command: node ledger-operator/index.js
+    volumes: 
+      - ../ledger-operator:/ledger-operator
+  tracker:
+    container_name: blockchain.tracker
+    image: node:alpine
+    command: node tracker/index.js
+    volumes:
+      - ../tracker:/tracker
