@@ -4,16 +4,15 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
-const dotenv = require("dotenv")
+
 const { Store, Pure } = require("./nodesManager")
-const { log } = require("./logger")
-const { __dirname } = require("node")
+const logger = require("./logger")
+const config = require("./config")
 
-dotenv.config()
-
-const config = require("process").env
 const httpsOptions = {
+// eslint-disable-next-line no-undef
   key: fs.readFileSync(`${__dirname}/certs/privkey.pem`),
+  // eslint-disable-next-line no-undef
   cert: fs.readFileSync(`${__dirname}/certs/certificate.crt`),
 }
 
@@ -28,15 +27,14 @@ const routing = (request, response) => {
   else { fallbackRoute(response) }
 }
 
-const refNodeUrl = config.REF_NODE_URL
-
-Pure.initializeKnownNodes(refNodeUrl, (knownNodes) => {
+Pure.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
   Store.save(knownNodes)
+  logger.info(knownNodes)
   const httpServer = http.createServer((req, res) => routing(req, res))
   const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res))
 
-  httpServer.listen(httpPort, () => log.info(`HTTP Server on port ${httpPort}`))
-  httpsServer.listen(httpsPort, () => log.info(`HTTPS Server on port ${httpsPort}`))
+  httpServer.listen(httpPort, () => logger.info(`HTTP Server on port ${httpPort}`))
+  httpsServer.listen(httpsPort, () => logger.info(`HTTPS Server on port ${httpsPort}`))
 })
 
 // Routing Functions
@@ -56,7 +54,7 @@ const addNodesAndPropagate = async (request, response) => {
   response.write(JSON.stringify(knownNodes))
   response.end()
 
-  const newNodes = await getBody(request).catch((error) => log.error(error))
+  const newNodes = await getBody(request).catch((error) => logger.error(error))
   const unknownNodes = Pure.unknowns(request.url, newNodes, knownNodes)
 
   if(unknownNodes.size <= 0) { return }
