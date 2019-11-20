@@ -4,10 +4,11 @@ const http = require("http")
 const https = require("https")
 const url = require("url")
 const fs = require("fs")
+const { __dirname } = require("node")
 
 const httpsOptions = {
-  key: fs.readFileSync("./certs/privkey.pem"),
-  cert: fs.readFileSync("./certs/certificate.crt"),
+  key: fs.readFileSync(`${__dirname}/certs/privkey.pem`),
+  cert: fs.readFileSync(`${__dirname}/certs/certificate.crt`),
 }
 
 const httpPort = 3000

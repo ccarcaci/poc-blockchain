@@ -6,6 +6,10 @@ services:
     command: node ledger-operator/index.js
     volumes: 
       - ../ledger-operator:/ledger-operator
+    environment:
+      REF_NODE_URL: http://tracker/track
+    depends_on:
+      - tracker
   tracker:
     container_name: blockchain.tracker
     image: node:alpine
