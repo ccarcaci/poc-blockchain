@@ -1,7 +1,7 @@
 "use strict"
 
-const { doPost } = require("./client")
-const { log } = require("./logger")
+const client = require("./client")
+const logger = require("./logger")
 
 let knownNodes = []
 
@@ -21,13 +21,20 @@ module.exports = {
       return [...new Set([ sourceNode, ...newNodes ])].filter((node) => !knownNodes.includes(node))
     },
     initializeKnownNodes: (refNode, callback) => {
-      doPost(refNode, [])
-        .catch((error) => log.error(error))
-        .then((knownNodes) => callback(knownNodes))
+      const probingInterval = setInterval(() => {
+        logger.info("Trying to connect")
+        client.doGet(refNode, [])
+          .catch((error) => logger.info(error))
+          .then((knownNodes) => {
+            logger.info("Connected")
+            clearInterval(probingInterval)
+            callback(knownNodes)
+          })
+      }, 2000)
     },
     propagate: (nodes, callback) => {
-      nodes.forEach((node) => doPost(node, [])
-        .catch((error) => log.error(error))
+      nodes.forEach((node) => client.doPost(node, [])
+        .catch((error) => logger.error(error))
         .then((receivedNodes) => callback(receivedNodes)))
     },
   },
