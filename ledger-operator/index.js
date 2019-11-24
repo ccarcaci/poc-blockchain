@@ -10,7 +10,7 @@ const logger = require("./logger")
 const config = require("./config")
 
 const httpsOptions = {
-// eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef
   key: fs.readFileSync(`${__dirname}/certs/privkey.pem`),
   // eslint-disable-next-line no-undef
   cert: fs.readFileSync(`${__dirname}/certs/certificate.crt`),
@@ -28,8 +28,8 @@ const routing = (request, response) => {
 }
 
 Pure.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
-  Store.save(knownNodes)
-  logger.info(knownNodes)
+  Store.save(knownNodes.operators)
+  logger.info(Store.load())
   const httpServer = http.createServer((req, res) => routing(req, res))
   const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res))
 
