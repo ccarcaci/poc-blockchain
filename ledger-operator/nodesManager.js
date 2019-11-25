@@ -15,27 +15,26 @@ module.exports = {
       return [...new Set(nodes)]
     },
     merge: (sourceNode, newNodes, knownNodes) => {
-      return [...new Set([ sourceNode, ...newNodes, ...knownNodes ])]
+      return [...new Set([sourceNode, ...newNodes, ...knownNodes])]
     },
     unknowns: (sourceNode, newNodes, knownNodes) => {
-      return [...new Set([ sourceNode, ...newNodes ])].filter((node) => !knownNodes.includes(node))
+      return [...new Set([sourceNode, ...newNodes])].filter((node) => !knownNodes.includes(node))
     },
     initializeKnownNodes: (refNode, callback) => {
-      const probingInterval = setInterval(() => {
-        logger.info("Trying to connect")
-        client.doGet(refNode, [])
-          .catch((error) => logger.info(error))
-          .then((knownNodes) => {
-            logger.info("Connected")
-            clearInterval(probingInterval)
-            callback(knownNodes)
-          })
-      }, 2000)
+      client.doGet(refNode, [])
+        .then((knownNodes) => {
+          logger.info("Connected")
+          callback(knownNodes)
+        })
+        .catch((error) => {
+          logger.info(error)
+          setTimeout(() => initializeKnownNodes(refNode, callback), 2000)
+        })
     },
     propagate: (nodes, callback) => {
       nodes.forEach((node) => client.doPost(node, [])
-        .catch((error) => logger.error(error))
         .then((receivedNodes) => callback(receivedNodes)))
+        .catch((error) => logger.error(error))
     },
   },
 }

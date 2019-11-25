@@ -1,7 +1,6 @@
 version: "3"
 services:
-  ledger-operator:
-    container_name: blockchain.ledger-operator
+  operator:
     image: node:alpine
     command: node --inspect=0.0.0.0 ledger-operator/index.js
     volumes: 
@@ -12,16 +11,15 @@ services:
     depends_on:
       - tracker
     ports:
-      - 4242:3000
-      - 4243:4443
-      - 4229:9229
+      - 3000
+      - 4443
+      - 9229
   tracker:
-    container_name: blockchain.tracker
     image: node:alpine
     command: node --inspect=0.0.0.0 tracker/index.js
     volumes:
       - ../tracker:/tracker
     ports:
-      - 4244:3000
-      - 4245:4443
-      - 4299:9229
+      - 4242:3000
+      - 4243:4443
+      - 4229:9229
