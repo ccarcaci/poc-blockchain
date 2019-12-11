@@ -5,7 +5,7 @@ const https = require("https")
 const url = require("url")
 const fs = require("fs")
 
-const { Store, Pure } = require("./nodesManager")
+const { Store, Operations } = require("./nodesManager")
 const logger = require("./logger")
 const config = require("./config")
 
@@ -27,7 +27,7 @@ const routing = (request, response) => {
   else { fallbackRoute(response) }
 }
 
-Pure.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
+Operations.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
   Store.save(knownNodes.operators)
   logger.info(Store.load())
   const httpServer = http.createServer((req, res) => routing(req, res))
@@ -47,20 +47,23 @@ const fallbackRoute = (response) => {
   response.writeHead(404)
   response.end()
 }
-const addNodesAndPropagate = async (request, response) => {
+const addNodesAndPropagate = (request, response) => {
   const knownNodes = Store.load()
 
   response.writeHead(200, { "Content-Type": "application/json" })
   response.write(JSON.stringify(knownNodes))
   response.end()
 
-  const newNodes = await getBody(request).catch((error) => logger.error(error))
-  const unknownNodes = Pure.unknowns(request.url, newNodes, knownNodes)
+  getBody(request)
+    .then((newNodes) => {
+      const unknownNodes = Operations.unknowns(request.url, newNodes, knownNodes)
 
-  if(unknownNodes.size <= 0) { return }
+      if(unknownNodes.size <= 0) { return }
 
-  const allNodes = Pure.merge(request.url, newNodes, knownNodes)
-  Pure.propagate(allNodes, (receivedNodes) => Store.save(Pure.join(receivedNodes, allNodes)))
+      const allNodes = Operations.merge(request.url, newNodes, knownNodes)
+      Operations.propagate(allNodes, (receivedNodes) => Store.save(Operations.join(receivedNodes, allNodes)))
+    })
+    .catch((error) => logger.error(error))
 }
 
 // Server Functions

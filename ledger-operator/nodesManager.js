@@ -10,7 +10,7 @@ module.exports = {
     save: (nodes) => knownNodes = nodes,
     load: () => knownNodes,
   },
-  Pure: {
+  Operations: {
     join: (...nodes) => {
       return [...new Set(nodes)]
     },
