@@ -2,6 +2,7 @@
 
 const client = require("./client")
 const logger = require("./logger")
+const miner = require("./miner")
 
 let knownNodes = []
 
@@ -33,8 +34,13 @@ module.exports = {
     },
     propagate: (nodes, callback) => {
       nodes.forEach((node) => client.doPost(node, [])
-        .then((receivedNodes) => callback(receivedNodes)))
-        .catch((error) => logger.error(error))
+      .then((receivedNodes) => callback(receivedNodes))
+      .catch((error) => logger.error(error)))
     },
-  },
+    mine: () => {
+      const currentPageContent = miner.getCurrentPageContent()
+      miner.addPadding(currentPageContent)
+      miner.verifyPOW(currentPageContent)
+    }
+  }
 }
