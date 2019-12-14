@@ -1,9 +1,9 @@
 "use strict"
 
-const nodesManager = require("../nodesManager")
-const miner = require("../miner")
+const nodesManager = require("../src/nodesManager")
+const miner = require("../src/miner")
 
-jest.mock("../miner.js")
+jest.mock("../src/miner.js")
 
 describe("Do mining", () => {
   test("Run single failing mining round", () => {
