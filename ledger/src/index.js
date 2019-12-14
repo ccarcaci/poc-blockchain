@@ -11,9 +11,9 @@ const config = require("./config")
 
 const httpsOptions = {
   // eslint-disable-next-line no-undef
-  key: fs.readFileSync(`${__dirname}/certs/privkey.pem`),
+  key: fs.readFileSync(`${__dirname}/../certs/privkey.pem`),
   // eslint-disable-next-line no-undef
-  cert: fs.readFileSync(`${__dirname}/certs/certificate.crt`),
+  cert: fs.readFileSync(`${__dirname}/../certs/certificate.crt`),
 }
 
 const httpPort = 3000

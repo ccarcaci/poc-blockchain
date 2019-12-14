@@ -1,10 +1,10 @@
 version: "3"
 services:
   operator:
-    image: node:alpine
-    command: node --inspect=0.0.0.0 ledger-operator/index.js
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 ledger/src/index.js
     volumes: 
-      - ../ledger-operator:/ledger-operator
+      - ../ledger:/ledger
     environment:
       REF_NODE_URL: http://tracker:3000/track
       LOG_LEVEL: debug
@@ -15,8 +15,8 @@ services:
       - 4443
       - 9229
   tracker:
-    image: node:alpine
-    command: node --inspect=0.0.0.0 tracker/index.js
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 tracker/index.js
     volumes:
       - ../tracker:/tracker
     ports:

@@ -1,9 +1,9 @@
 "use strict"
 
-const client= require("../client")
-const nodesManager = require("../nodesManager")
+const client= require("../src/client")
+const nodesManager = require("../src/nodesManager")
 
-jest.mock("../client")
+jest.mock("../src/client")
 
 describe("Propagation Functionalities", () => {
   beforeEach(() => client.doPost.mockReset())
