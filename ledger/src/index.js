@@ -5,7 +5,8 @@ const https = require("https")
 const url = require("url")
 const fs = require("fs")
 
-const nodesManager = require("./nodesManager")
+const store = require("./store").initialize()
+const network = require("./network")
 const logger = require("./logger")
 const config = require("./config")
 
@@ -18,6 +19,7 @@ const httpsOptions = {
 
 const httpPort = 3000
 const httpsPort = 4443
+const interval = 1000
 
 const routing = (request, response) => {
   const action = url.parse(request.url)
@@ -27,9 +29,9 @@ const routing = (request, response) => {
   else { fallbackRoute(response) }
 }
 
-nodesManager.Operations.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
-  nodesManager.Store.save(knownNodes.operators)
-  logger.info(nodesManager.Store.load())
+network.initializeKnownNodes(config.refNodeUrl, (knownNodes) => {
+  store.save(knownNodes.operators)
+  logger.info(store.load())
   const httpServer = http.createServer((req, res) => routing(req, res))
   const httpsServer = https.createServer(httpsOptions, (req, res) => routing(req, res))
 
@@ -48,7 +50,7 @@ const fallbackRoute = (response) => {
   response.end()
 }
 const addNodesAndPropagate = (request, response) => {
-  const knownNodes = nodesManager.Store.load()
+  const knownNodes = store.load()
 
   response.writeHead(200, { "Content-Type": "application/json" })
   response.write(JSON.stringify(knownNodes))
@@ -56,12 +58,12 @@ const addNodesAndPropagate = (request, response) => {
 
   getBody(request)
     .then((newNodes) => {
-      const unknownNodes = nodesManager.Operations.unknowns(request.url, newNodes, knownNodes)
+      const unknownNodes = network.unknowns(request.url, newNodes, knownNodes)
 
       if(unknownNodes.size <= 0) { return }
 
-      const allNodes = nodesManager.Operations.merge(request.url, newNodes, knownNodes)
-      nodesManager.Operations.propagate(allNodes, (receivedNodes) => nodesManager.Store.save(nodesManager.Operations.join(receivedNodes, allNodes)))
+      const allNodes = network.merge(request.url, newNodes, knownNodes)
+      network.propagate(allNodes, (receivedNodes) => store.save(network.join(receivedNodes, allNodes)))
     })
     .catch((error) => logger.error(error))
 }
@@ -73,3 +75,9 @@ const getBody = (request) => new Promise((resolve) => {
   request.on("data", (chunk) => body+=chunk)
   request.on("end", () => resolve(JSON.parse(body)))
 })
+
+// Mining Functions
+
+setInterval(() => {
+  if(miner.mine()) { miner.propagate() }
+}, interval)
