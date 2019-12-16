@@ -17,17 +17,21 @@ chain.save([
   },
 ])
 
-const addPage = (chain, newPage) => [ newPage, ...chain ]
+const addPage = (chain, newPage) => [ ...chain, newPage ]
 
 module.exports = {
   full: () => chain.load(),
   addTransaction: (transaction) => {
-    const currentPage = chain.load().slice(-1)
+    const currentPage = chain.load()
+      .slice(-1)
       .pop()
+      .pageContent
     currentPage.transactions = [ transaction, ...currentPage.transactions ]
   },
   mine: () => {
-    const currentPage = chain.load().slice(-1)
+    const currentChain = chain.load()
+    const currentPage = currentChain
+      .slice(-1)
       .pop()
     currentPage.pageContent.padding = crypto.uuidv4()
     currentPage.pageHash = crypto.sha3(currentPage.pageContent)
@@ -44,8 +48,7 @@ module.exports = {
         pageHash: "",
       }
 
-      chain.store(addPage(chain, newPage))
+      chain.save(addPage(currentChain, newPage))
     }
   },
-
 }
