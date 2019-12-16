@@ -5,9 +5,8 @@ const https = require("https")
 const url = require("url")
 const fs = require("fs")
 
-const nodesManager = require("./nodesManager")
 const logger = require("./logger")
-const config = require("./config")
+const chain = require("./chain")
 
 const httpsOptions = {
   // eslint-disable-next-line no-undef
@@ -18,6 +17,7 @@ const httpsOptions = {
 
 const httpPort = 3000
 const httpsPort = 4443
+const interval = 500
 
 const routing = (request, response) => {
   const action = url.parse(request.url)
@@ -54,6 +54,11 @@ const addTransaction = (request, response) => {
   const transaction = getBody(request)
   chain.addTransaction(transaction)
 
+  response.writeHead(200)
+  response.end()
+}
+const getCurrentPage = (response) => {
+  response.write(chain.full().slice(-1))
   response.writeHead(200)
   response.end()
 }
