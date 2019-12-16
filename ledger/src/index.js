@@ -7,6 +7,7 @@ const fs = require("fs")
 
 const logger = require("./logger")
 const chain = require("./chain")
+const configs = require("./configs")
 
 const httpsOptions = {
   // eslint-disable-next-line no-undef
@@ -17,7 +18,6 @@ const httpsOptions = {
 
 const httpPort = 3000
 const httpsPort = 4443
-const interval = 500
 
 const routing = (request, response) => {
   const action = url.parse(request.url)
@@ -46,20 +46,21 @@ const fallbackRoute = (response) => {
   response.end()
 }
 const getChain = (response) => {
-  response.write(chain.full())
-  response.writeHead(200)
+  response.writeHead(200, { "Content-Type": "application/json" })
+  response.write(JSON.stringify(chain.full()))
   response.end()
 }
 const addTransaction = (request, response) => {
-  const transaction = getBody(request)
-  chain.addTransaction(transaction)
+  getBody(request).then((transaction) => {
+    chain.addTransaction(transaction)
 
-  response.writeHead(200)
-  response.end()
+    response.writeHead(200)
+    response.end()
+  })
 }
 const getCurrentPage = (response) => {
+  response.writeHead(200, { "Content-Type": "application/json" })
   response.write(chain.full().slice(-1))
-  response.writeHead(200)
   response.end()
 }
 
@@ -73,4 +74,4 @@ const getBody = (request) => new Promise((resolve) => {
 
 // Mining
 
-setInterval(() => chain.mine(), interval)
+setInterval(() => chain.mine(), configs.miningInterval)

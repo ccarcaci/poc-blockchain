@@ -1,6 +1,6 @@
 "use strict"
 
-const SHA3 = require("sha3")
+const { SHA3 } = require("sha3")
 
 module.exports = {
   verifyPOW: (pageHash) => pageHash.slice(0, 1) === "4",

@@ -33,6 +33,8 @@ module.exports = {
     const currentPage = currentChain
       .slice(-1)
       .pop()
+    if(currentPage.pageContent.transactions.length <= 0) { return }
+
     currentPage.pageContent.padding = crypto.uuidv4()
     currentPage.pageHash = crypto.sha3(currentPage.pageContent)
 
