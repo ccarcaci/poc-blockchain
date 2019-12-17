@@ -1,25 +1,14 @@
 version: "3"
 services:
-  operator:
+  ledger:
     image: ccarcaci/nodemon:alpine
     command: nodemon --inspect=0.0.0.0 ledger/src/index.js
     volumes: 
       - ../ledger:/ledger
     environment:
-      REF_NODE_URL: http://tracker:3000/track
+      MINING_INTERVAL: 1000
       LOG_LEVEL: debug
-    depends_on:
-      - tracker
     ports:
-      - 3000
-      - 4443
-      - 9229
-  tracker:
-    image: ccarcaci/nodemon:alpine
-    command: nodemon --inspect=0.0.0.0 tracker/index.js
-    volumes:
-      - ../tracker:/tracker
-    ports:
-      - 4242:3000
-      - 4243:4443
-      - 4229:9229
+      - 3000:3000
+      - 4443:4443
+      - 9229:9229
