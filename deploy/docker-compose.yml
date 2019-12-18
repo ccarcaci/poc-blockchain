@@ -6,9 +6,23 @@ services:
     volumes: 
       - ../ledger:/ledger
     environment:
-      MINING_INTERVAL: 1000
+      MINING_INTERVAL: 400
       LOG_LEVEL: debug
     ports:
       - 3000:3000
       - 4443:4443
       - 9229:9229
+  generator:
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 generator/src/index.js
+    volumes:
+      - ../generator:/generator
+    environment:
+      LEDGER_URL: http://ledger:3000/transaction
+      REPO_FILENAME: RC_2005-12.bz2
+      MINIMUM_TIME: 100
+      GENERATOR_INTERVAL: 150
+    ports:
+      - 4229:9229
+    depends_on:
+      - ledger
