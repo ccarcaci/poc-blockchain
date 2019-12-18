@@ -4,7 +4,7 @@ services:
     image: ccarcaci/nodemon:alpine
     command: nodemon --inspect=0.0.0.0 ledger/src/index.js
     volumes: 
-      - ../ledger:/ledger
+      - ../ledger:/ledger:ro
     environment:
       MINING_INTERVAL: 400
       LOG_LEVEL: debug
@@ -16,7 +16,7 @@ services:
     image: ccarcaci/nodemon:alpine
     command: nodemon --inspect=0.0.0.0 generator/src/index.js
     volumes:
-      - ../generator:/generator
+      - ../generator:/generator:ro
     environment:
       LEDGER_URL: http://ledger:3000/transaction
       REPO_FILENAME: RC_2005-12.bz2
