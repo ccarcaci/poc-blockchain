@@ -26,3 +26,12 @@ services:
       - 4229:9229
     depends_on:
       - ledger
+  inspector:
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 inspector/src/index.js
+    volumes:
+      - ../inspector:/inspector:ro
+    ports:
+      - 9242:9229
+    depends_on:
+      - ledger

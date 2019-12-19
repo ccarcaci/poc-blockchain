@@ -1,0 +1,29 @@
+{
+  "name": "inspector",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon src/index.js",
+    "linter": "eslint --fix ./",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "EUPL-1.2",
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "npm run linter",
+      "git add ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "devDependencies": {
+    "eslint": "^6.7.2",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0"
+  }
+}
