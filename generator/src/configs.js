@@ -1,3 +1,6 @@
+/* eslint-disable no-process-env */
+"use strict"
+
 const dotenv = require("dotenv")
 const process = require("process")
 

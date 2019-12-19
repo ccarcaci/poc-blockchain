@@ -17,7 +17,7 @@ const send = new stream.Writable({
   write(chunk, _, callback) {
     client.doPost(configs.ledgerUrl, chunk.toString("utf-8"))
     callback()
-  }
+  },
 })
 
 fs.createReadStream(`${appDir}/../reddit-repos/${configs.repoFilename}`)

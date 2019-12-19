@@ -1,3 +1,5 @@
+"use strict"
+
 const stream = require("stream")
 
 const isValidJSON = (content) => {
@@ -16,9 +18,10 @@ module.exports = {
   splittingLine: new stream.Transform({
     transform(chunk, _, callback) {
       console.log("Splitting line")
-      chunk.toString().split("\n").forEach(line => this.push(line))
+      chunk.toString().split("\n")
+        .forEach((line) => this.push(line))
       callback()
-    }
+    },
   }),
   makeValid: new stream.Transform({
     transform(chunk, _, callback) {
@@ -30,17 +33,17 @@ module.exports = {
       this.push(partialPost)
       partialPost = ""
       callback()
-    }
+    },
   }),
   wait: (minimumTime, generatorInteval) => new stream.Transform({
     transform(chunk, _, callback) {
       const waitingTime = minimumTime + Math.random() * generatorInteval
       console.log(`Waiting ${waitingTime}`)
-      
+
       setTimeout(() => {
         this.push(chunk)
         callback()
       }, waitingTime)
-    }
+    },
   }),
 }
