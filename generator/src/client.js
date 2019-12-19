@@ -26,10 +26,9 @@ module.exports = {
     detectProtocol(completeUrl, (protocol) => {
       const jsonStringContent = JSON.stringify(content)
       const action = url.parse(completeUrl)
-
       const options = {
         hostname: action.hostname,
-        port: 4443,
+        port: action.port,
         path: action.pathname,
         method: "POST",
         headers: {
@@ -38,11 +37,8 @@ module.exports = {
         },
       }
 
-      const request = protocol.request(options, (response) => {
-        let data = ""
-        response.on("data", (chunk) => data += chunk)
-        response.on("end", () => resolve(JSON.parse(data)))
-      })
+      console.log(`Sending chunk  | ${jsonStringContent}`)
+      const request = protocol.request(options, () => resolve())
       request.on("error", (error) => reject(error))
       request.write(jsonStringContent)
       request.end()

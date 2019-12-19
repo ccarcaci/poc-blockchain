@@ -15,6 +15,7 @@ let partialPost = ""
 module.exports = {
   splittingLine: new stream.Transform({
     transform(chunk, _, callback) {
+      console.log("Splitting line")
       chunk.toString().split("\n").forEach(line => this.push(line))
       callback()
     }
@@ -24,7 +25,8 @@ module.exports = {
       partialPost = `${partialPost}${chunk}`
 
       if(!isValidJSON(partialPost)) { callback(); return }
-      
+
+      console.log("Make valid Json")
       this.push(partialPost)
       partialPost = ""
       callback()
@@ -33,7 +35,8 @@ module.exports = {
   wait: (minimumTime, generatorInteval) => new stream.Transform({
     transform(chunk, _, callback) {
       const waitingTime = minimumTime + Math.random() * generatorInteval
-
+      console.log(`Waiting ${waitingTime}`)
+      
       setTimeout(() => {
         this.push(chunk)
         callback()
