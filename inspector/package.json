@@ -1,20 +1,15 @@
 {
-  "name": "templating-node",
+  "name": "inspector",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon index.js",
-    "linter": "eslint --fix ./"
+    "start:dev": "nodemon src/index.js",
+    "linter": "eslint --fix ./",
+    "test": "jest"
   },
   "author": "",
   "license": "EUPL-1.2",
-  "devDependencies": {
-    "nodemon": "^1.18.7",
-    "eslint": "^6.3.0",
-    "husky": "^3.0.5",
-    "lint-staged": "^9.2.5"
-  },
   "lint-staged": {
     "*.{js,jsx}": [
       "npm run linter",
@@ -26,7 +21,14 @@
       "pre-commit": "lint-staged"
     }
   },
+  "devDependencies": {
+    "eslint": "^6.7.2",
+    "husky": "^3.1.0",
+    "lint-staged": "^9.5.0"
+  },
   "dependencies": {
-    "sha3": "^2.0.7"
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.2",
+    "sha3": "^2.1.1"
   }
 }

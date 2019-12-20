@@ -47,7 +47,7 @@ module.exports = {
     "comma-style": ["error", "last"],
     "eol-last": ["error", "always"],
     "func-call-spacing": ["error", "never"],
-    "id-length": ["error"],
+    "id-length": ["error", { "exceptions": [ "_" ] }],
     "implicit-arrow-linebreak": ["error", "beside"],
     "jsx-quotes": ["error", "prefer-double"],
     "max-depth": ["warn", 3],

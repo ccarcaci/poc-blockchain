@@ -24,27 +24,22 @@ module.exports = {
   }),
   doPost: (completeUrl, content) => new Promise((resolve, reject) => {
     detectProtocol(completeUrl, (protocol) => {
-      const jsonStringContent = JSON.stringify(content)
       const action = url.parse(completeUrl)
-
       const options = {
         hostname: action.hostname,
-        port: 4443,
+        port: action.port,
         path: action.pathname,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Content-Length": jsonStringContent.length,
+          "Content-Length": content.length,
         },
       }
 
-      const request = protocol.request(options, (response) => {
-        let data = ""
-        response.on("data", (chunk) => data += chunk)
-        response.on("end", () => resolve(JSON.parse(data)))
-      })
+      console.log(`Sending chunk  | ${content}`)
+      const request = protocol.request(options, () => resolve())
       request.on("error", (error) => reject(error))
-      request.write(jsonStringContent)
+      request.write(content)
       request.end()
     })
   }),
