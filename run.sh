@@ -1,5 +1,6 @@
 (cd ledger; npm i)
 (cd generator; npm i)
+(cd inspector; npm i)
 
 if [ ! -f "generator/reddit-repos/RC_2005-12.bz2" ]; then
   mkdir generator/reddit-repos
