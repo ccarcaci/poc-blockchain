@@ -29,7 +29,6 @@ module.exports = {
 
       if(!isValidJSON(partialPost)) { callback(); return }
 
-      console.log("Make valid Json")
       this.push(partialPost)
       partialPost = ""
       callback()
