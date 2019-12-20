@@ -1,0 +1,39 @@
+version: "3"
+services:
+  ledger:
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 ledger/src/index.js
+    volumes: 
+      - ../ledger:/ledger:ro
+    environment:
+      MINING_INTERVAL: 400
+      LOG_LEVEL: debug
+    ports:
+      - 3000:3000
+      - 4443:4443
+      - 9229:9229
+  generator:
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 generator/src/index.js
+    volumes:
+      - ../generator:/generator:ro
+    environment:
+      LEDGER_URL: http://ledger:3000/transaction
+      REPO_FILENAME: RC_2005-12.bz2
+      MINIMUM_TIME: 400
+      GENERATOR_INTERVAL: 400
+    ports:
+      - 4229:9229
+    depends_on:
+      - ledger
+  inspector:
+    image: ccarcaci/nodemon:alpine
+    command: nodemon --inspect=0.0.0.0 inspector/src/index.js
+    volumes:
+      - ../inspector:/inspector:ro
+    ports:
+      - 9242:9229
+    depends_on:
+      - ledger
+    environment:
+      LEDGER_URL: http://ledger:3000/chain

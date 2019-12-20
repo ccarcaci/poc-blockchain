@@ -2,7 +2,9 @@
 
 const log4js = require("log4js")
 
-const logLevel = "info"
+const configs = require("./configs")
+
+const logLevel = configs.logLevel
 const layout = {
   type: "pattern",
   pattern: "LOGGER\t| %d\t| %p\t| %m%n",
@@ -24,6 +26,4 @@ log4js.configure({
   },
 })
 
-module.exports = {
-  log: log4js.getLogger(),
-}
+module.exports = log4js.getLogger()
