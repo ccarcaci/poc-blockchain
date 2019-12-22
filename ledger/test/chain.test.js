@@ -61,6 +61,71 @@ describe("Chain Functionalities", () => {
 })
 
 describe("Chain Integrity Check", () => {
-  test("A page has incorrect previous page hash", () => {})
+  test("Chain is valid", () => {
+    const chain = require("../src/chain")
+    const currentChain = [
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "",
+          padding: "",
+        },
+        pageHash: "42",
+      },
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "42",
+          padding: "",
+        },
+        pageHash: "4242",
+      },
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "4242",
+          padding: "",
+        },
+        pageHash: "",
+      },
+    ]
+
+    const inspectionResult = chain.inspect(currentChain)
+
+    expect(inspectionResult).toBe(true)
+  })
+  test("A page has incorrect previous page hash", () => {
+    const chain = require("../src/chain")
+    const tamperedChain = [
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "",
+          padding: "",
+        },
+        pageHash: "42",
+      },
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "42",
+          padding: "",
+        },
+        pageHash: "4242",
+      },
+      {
+        pageContent: {
+          transactions: [ ],
+          previousPageHash: "4243",
+          padding: "",
+        },
+        pageHash: "",
+      },
+    ]
+    
+    const inspectionResult = chain.inspect(tamperedChain)
+
+    expect(inspectionResult).toBe(false)
+  })
   test("A page has an invalid page hash", () => {})
 })
