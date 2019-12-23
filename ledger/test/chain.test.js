@@ -61,8 +61,11 @@ describe("Chain Functionalities", () => {
 })
 
 describe("Chain Integrity Check", () => {
+  beforeAll(() => jest.unmock("../src/crypto.js"))
+  afterEach(() => jest.resetModules())
   test("Chain is valid", () => {
-    const chain = require("../src/chain")
+    const store = require("../src/store")
+    jest.mock("../src/store.js")
     const currentChain = [
       {
         pageContent: {
@@ -70,32 +73,38 @@ describe("Chain Integrity Check", () => {
           previousPageHash: "",
           padding: "",
         },
-        pageHash: "42",
+        pageHash: "7a70d0eecd5111f6368004577fbefd158de4a58e358885c6f21e2f59bdc744c8a27790f7ec9bec93bfe814a6b8421980ff8f9c5b8db88372601d1e04be0ba836",
       },
       {
         pageContent: {
           transactions: [ ],
-          previousPageHash: "42",
+          previousPageHash: "7a70d0eecd5111f6368004577fbefd158de4a58e358885c6f21e2f59bdc744c8a27790f7ec9bec93bfe814a6b8421980ff8f9c5b8db88372601d1e04be0ba836",
           padding: "",
         },
-        pageHash: "4242",
+        pageHash: "97a25f02c821c0cc9837036a511b0967698c06650fbe7a1f57046f587ff1c73be06a4d3e17e02919657b203dc368915f3d73fb94de388b3e4279b2a27d03bb1b",
       },
       {
         pageContent: {
           transactions: [ ],
-          previousPageHash: "4242",
+          previousPageHash: "97a25f02c821c0cc9837036a511b0967698c06650fbe7a1f57046f587ff1c73be06a4d3e17e02919657b203dc368915f3d73fb94de388b3e4279b2a27d03bb1b",
           padding: "",
         },
         pageHash: "",
       },
     ]
+    store.initialize.mockReturnValue({
+      save: () => {},
+      load: () => currentChain
+    })
+    const chain = require("../src/chain")
 
-    const inspectionResult = chain.inspect(currentChain)
+    const inspectionResult = chain.inspect()
 
     expect(inspectionResult).toBe(true)
   })
   test("A page has incorrect previous page hash", () => {
-    const chain = require("../src/chain")
+    const store = require("../src/store")
+    jest.mock("../src/store.js")
     const tamperedChain = [
       {
         pageContent: {
@@ -122,8 +131,13 @@ describe("Chain Integrity Check", () => {
         pageHash: "",
       },
     ]
+    store.initialize.mockReturnValue({
+      save: () => {},
+      load: () => tamperedChain
+    })
+    const chain = require("../src/chain")
     
-    const inspectionResult = chain.inspect(tamperedChain)
+    const inspectionResult = chain.inspect()
 
     expect(inspectionResult).toBe(false)
   })
