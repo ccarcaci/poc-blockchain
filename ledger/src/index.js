@@ -26,6 +26,8 @@ const routing = (request, response) => {
   else if(request.method === "GET" && action.pathname === "/chain") { getChain(response) }
   else if(request.method === "POST" && action.pathname === "/transaction") { addTransaction(request, response) }
   else if(request.method === "GET" && action.pathname === "/current-page") { getCurrentPage(response) }
+  else if(request.method === "GET" && action.pathname === "/inspect") { inspect(response) }
+  else if(request.method === "GET" && action.pathname === "/tamper") { tamper(response) }
   else { fallbackRoute(response) }
 }
 
