@@ -3,6 +3,7 @@
 const logger = require("./logger")
 const store = require("./store")
 const crypto = require("./crypto")
+const pipe = require("./pipe")
 
 const chain = store.initialize()
 
@@ -18,6 +19,27 @@ chain.save([
 ])
 
 const addPage = (chain, newPage) => [ ...chain, newPage ]
+const chainingHashInspector = (chain) => {
+  if(chain.length <= 1) { return chain }
+
+  for(let index = 0; index < chain.length -1; index++) {
+    const currentPageHash = chain[index].pageHash
+    const nextPageHash = chain[index + 1].pageContent.previousPageHash
+
+    if(currentPageHash !== nextPageHash) { return undefined }
+  }
+
+  return chain
+}
+const hashVerification = (chain) => {
+  for(let index = 0; index < chain.length - 1; index++) {
+    const computatedHash = crypto.sha3(chain[index].pageContent)
+
+    if(computatedHash !== chain[index].pageHash) { return undefined }
+  }
+
+  return chain
+}
 
 module.exports = {
   full: () => chain.load(),
@@ -53,4 +75,6 @@ module.exports = {
       chain.save(addPage(currentChain, newPage))
     }
   },
+  inspect: () => pipe(chain.load(), () => true, () => false)(chainingHashInspector,
+    hashVerification),
 }
