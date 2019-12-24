@@ -1,6 +1,8 @@
 "use strict"
 
-module.exports = (startingParams, okHandler = (stepsResult) => stepsResult, exceptionHandler = () => false) => (...steps) => {
+module.exports = (startingParams,
+  okHandler = (stepsResult) => stepsResult,
+  exceptionHandler = () => false) => (...steps) => {
   const stepsResult = steps.reduce((accumulator, currentStep) => {
     if(accumulator === undefined) { return undefined }
 
