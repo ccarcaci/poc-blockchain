@@ -65,6 +65,8 @@ const getCurrentPage = (response) => {
   response.write(chain.full().slice(-1))
   response.end()
 }
+const inspect = () => {}
+const tamper = () => {}
 
 // Server Functions
 
