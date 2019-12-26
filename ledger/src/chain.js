@@ -5,9 +5,9 @@ const store = require("./store")
 const crypto = require("./crypto")
 const pipe = require("./pipe")
 
-const chain = store.initialize()
+const theChain = store.initialize()
 
-chain.save([
+theChain.save([
   {
     pageContent: {
       transactions: [ ],
@@ -18,40 +18,47 @@ chain.save([
   },
 ])
 
-const addPage = (chain, newPage) => [ ...chain, newPage ]
-const chainingHashInspector = (chain) => {
-  if(chain.length <= 1) { return chain }
+const addPage = (theChain, newPage) => [ ...theChain, newPage ]
+const chainingHashInspector = (theChain) => {
+  if(theChain.length <= 1) { return theChain }
 
-  for(let index = 0; index < chain.length -1; index++) {
-    const currentPageHash = chain[index].pageHash
-    const nextPageHash = chain[index + 1].pageContent.previousPageHash
+  for(let index = 0; index < theChain.length -1; index++) {
+    const currentPageHash = theChain[index].pageHash
+    const nextPageHash = theChain[index + 1].pageContent.previousPageHash
 
     if(currentPageHash !== nextPageHash) { return undefined }
   }
 
-  return chain
+  return theChain
 }
-const hashVerification = (chain) => {
-  for(let index = 0; index < chain.length - 1; index++) {
-    const computatedHash = crypto.sha3(chain[index].pageContent)
+const hashVerification = (theChain) => {
+  for(let index = 0; index < theChain.length - 1; index++) {
+    const computatedHash = crypto.sha3(theChain[index].pageContent)
 
-    if(computatedHash !== chain[index].pageHash) { return undefined }
+    if(computatedHash !== theChain[index].pageHash) { return undefined }
   }
 
-  return chain
+  return theChain
+}
+const tampering = (theChain) => {
+  if(theChain.length >= 2) {
+    theChain[1].transactions = [ { eenie: "meenie", ...theChain[1].transactions } ]
+  }
+
+  return theChain
 }
 
 module.exports = {
-  full: () => chain.load(),
+  full: () => theChain.load(),
   addTransaction: (transaction) => {
-    const currentPage = chain.load()
+    const currentPage = theChain.load()
       .slice(-1)
       .pop()
       .pageContent
     currentPage.transactions = [ transaction, ...currentPage.transactions ]
   },
   mine: () => {
-    const currentChain = chain.load()
+    const currentChain = theChain.load()
     const currentPage = currentChain
       .slice(-1)
       .pop()
@@ -72,9 +79,17 @@ module.exports = {
         pageHash: "",
       }
 
-      chain.save(addPage(currentChain, newPage))
+      theChain.save(addPage(currentChain, newPage))
     }
   },
-  inspect: () => pipe(chain.load(), () => true, () => false)(chainingHashInspector,
-    hashVerification),
+  inspect: () => pipe(
+    theChain.load(),
+    () => true,
+    () => false)(
+      chainingHashInspector,
+      hashVerification),
+  tamper: () => pipe(
+        theChain.load(),
+        (theChain) => theChain.save())
+        (tampering)
 }

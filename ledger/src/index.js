@@ -40,7 +40,7 @@ httpsServer.listen(httpsPort, () => logger.info(`HTTPS Server on port ${httpsPor
 // Routing Functions
 
 const rootRoute = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain" })
+  response.writeHead(200)
   response.end()
 }
 const fallbackRoute = (response) => {
@@ -65,7 +65,17 @@ const getCurrentPage = (response) => {
   response.write(chain.full().slice(-1))
   response.end()
 }
-const inspect = () => {}
+const inspect = (response) => {
+  response.writeHead(200, { "Content-Type": "text/plain" })
+
+  if(chain.inspect()) {
+    response.write("OK")
+  } else {
+    response.write("KO")
+  }
+
+  response.end()
+}
 const tamper = () => {}
 
 // Server Functions
