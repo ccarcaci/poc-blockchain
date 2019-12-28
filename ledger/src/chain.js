@@ -5,9 +5,9 @@ const store = require("./store")
 const crypto = require("./crypto")
 const pipe = require("./pipe")
 
-const theChain = store.initialize()
+const chainStore = store.initialize()
 
-theChain.save([
+chainStore.save([
   {
     pageContent: {
       transactions: [ ],
@@ -49,16 +49,16 @@ const tampering = (theChain) => {
 }
 
 module.exports = {
-  full: () => theChain.load(),
+  full: () => chainStore.load(),
   addTransaction: (transaction) => {
-    const currentPage = theChain.load()
+    const currentPage = chainStore.load()
       .slice(-1)
       .pop()
       .pageContent
     currentPage.transactions = [ transaction, ...currentPage.transactions ]
   },
   mine: () => {
-    const currentChain = theChain.load()
+    const currentChain = chainStore.load()
     const currentPage = currentChain
       .slice(-1)
       .pop()
@@ -79,17 +79,17 @@ module.exports = {
         pageHash: "",
       }
 
-      theChain.save(addPage(currentChain, newPage))
+      chainStore.save(addPage(currentChain, newPage))
     }
   },
   inspect: () => pipe(
-    theChain.load(),
+    chainStore.load(),
     () => true,
     () => false)(
       chainingHashInspector,
       hashVerification),
   tamper: () => pipe(
-        theChain.load(),
-        (theChain) => theChain.save())
+        chainStore.load(),
+        (chain) => chainStore.save(chain))
         (tampering)
 }
