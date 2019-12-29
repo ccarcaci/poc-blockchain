@@ -6,8 +6,20 @@ const url = require("url")
 const fs = require("fs")
 
 const logger = require("./logger")
+const store = require("./store").initialize()
 const chain = require("./chain")
 const configs = require("./configs")
+
+store.save([
+  {
+    pageContent: {
+      transactions: [ ],
+      previousPageHash: "",
+      padding: "",
+    },
+    pageHash: "",
+  },
+])
 
 const httpsOptions = {
   // eslint-disable-next-line no-undef
@@ -49,12 +61,12 @@ const fallbackRoute = (response) => {
 }
 const getChain = (response) => {
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(JSON.stringify(chain.full()))
+  response.write(JSON.stringify(store.load()))
   response.end()
 }
 const addTransaction = (request, response) => {
   getBody(request).then((transaction) => {
-    chain.addTransaction(transaction)
+    store.save(chain.addTransaction(store.load(), transaction))
 
     response.writeHead(200)
     response.end()
@@ -62,13 +74,13 @@ const addTransaction = (request, response) => {
 }
 const getCurrentPage = (response) => {
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(chain.full().slice(-1))
+  response.write(store.load().slice(-1))
   response.end()
 }
 const inspect = (response) => {
   response.writeHead(200, { "Content-Type": "text/plain" })
 
-  if(chain.inspect()) {
+  if(chain.inspect(store.load())) {
     response.write("OK")
   } else {
     response.write("KO")
@@ -88,4 +100,4 @@ const getBody = (request) => new Promise((resolve) => {
 
 // Mining
 
-setInterval(() => chain.mine(), configs.miningInterval)
+setInterval(() => chain.mine(store.load()), configs.miningInterval)
