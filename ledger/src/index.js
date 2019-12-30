@@ -9,6 +9,7 @@ const logger = require("./logger")
 const store = require("./store").initialize()
 const chain = require("./chain")
 const configs = require("./configs")
+const pipe = require("./pipe")
 
 store.save([
   {
@@ -88,7 +89,11 @@ const inspect = (response) => {
 
   response.end()
 }
-const tamper = () => {}
+const tamper = (response) => {
+  pipe(store.load(), (theChain) => store.save(theChain))(chain.tamper)
+  response.writeHead(200)
+  response.end()  
+}
 
 // Server Functions
 
@@ -99,5 +104,4 @@ const getBody = (request) => new Promise((resolve) => {
 })
 
 // Mining
-
-setInterval(() => chain.mine(store.load()), configs.miningInterval)
+setInterval(() => pipe(store.load(), (theChain) => store.save(theChain))(chain.mine), configs.miningInterval)
