@@ -1,24 +1,12 @@
 "use strict"
 
 const logger = require("./logger")
-const store = require("./store")
 const crypto = require("./crypto")
 const pipe = require("./pipe")
 
-const chainStore = store.initialize()
+const duplicate = (content) => pipe(content)(JSON.stringify, JSON.parse)
 
-chainStore.save([
-  {
-    pageContent: {
-      transactions: [ ],
-      previousPageHash: "",
-      padding: "",
-    },
-    pageHash: "",
-  },
-])
-
-const addPage = (theChain, newPage) => [ ...theChain, newPage ]
+const addPage = (theChain, newPage) => pipe(theChain)(duplicate, (dupChain) => [ dupChain, newPage ])
 const chainingHashInspector = (theChain) => {
   if(theChain.length <= 1) { return theChain }
 
@@ -41,24 +29,27 @@ const hashVerification = (theChain) => {
   return theChain
 }
 const tampering = (theChain) => {
+  const currentChain = duplicate(theChain)
   if(theChain.length >= 2) {
-    theChain[1].transactions = [ { eenie: "meenie", ...theChain[1].transactions } ]
+    currentChain[1].transactions = [ { eenie: "meenie", ...currentChain[1].transactions } ]
   }
 
-  return theChain
+  return currentChain
 }
 
 module.exports = {
-  full: () => chainStore.load(),
-  addTransaction: (transaction) => {
-    const currentPage = chainStore.load()
+  addTransaction: (theChain, transaction) => {
+    const currentChain = duplicate(theChain)
+    const currentPage = currentChain
       .slice(-1)
       .pop()
       .pageContent
     currentPage.transactions = [ transaction, ...currentPage.transactions ]
+
+    return currentChain
   },
-  mine: () => {
-    const currentChain = chainStore.load()
+  mine: (theChain) => {
+    const currentChain = duplicate(theChain)
     const currentPage = currentChain
       .slice(-1)
       .pop()
@@ -79,17 +70,16 @@ module.exports = {
         pageHash: "",
       }
 
-      chainStore.save(addPage(currentChain, newPage))
+      addPage(theChain, newPage)
     }
+
+    return currentChain
   },
-  inspect: () => pipe(
-    chainStore.load(),
+  inspect: (theChain) => pipe(
+    theChain,
     () => true,
     () => false)(
       chainingHashInspector,
       hashVerification),
-  tamper: () => pipe(
-        chainStore.load(),
-        (chain) => chainStore.save(chain))
-        (tampering)
+  tamper: (theChain) => pipe(theChain)(tampering)
 }
