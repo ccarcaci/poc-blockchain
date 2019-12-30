@@ -7,8 +7,9 @@ const crypto = require("../src/crypto")
 jest.mock("../src/crypto.js")
 
 describe("Chain Integrity Check", () => {
-//  beforeEach(() => jest.resetModules())
   test("Chain is valid", () => {
+    console.log("Chain is valid")
+
     const currentChain = [
       {
         pageContent: {
@@ -48,6 +49,9 @@ describe("Chain Integrity Check", () => {
     expect(crypto.sha3).toHaveBeenCalledTimes(2)
   })
   test("A page has incorrect previous page hash", () => {
+    console.log("A page has incorrect previous page hash")
+    crypto.sha3.mockClear()
+
     const tamperedChain = [
       {
         pageContent: {
@@ -82,6 +86,8 @@ describe("Chain Integrity Check", () => {
     expect(crypto.sha3).not.toHaveBeenCalled()
   })
   test("A page has an invalid page hash", () => {
+    console.log("A page has an invalid page hash")
+
     const tamperedChain = [
       {
         pageContent: {

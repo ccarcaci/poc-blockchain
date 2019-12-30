@@ -31,7 +31,7 @@ const hashVerification = (theChain) => {
 const tampering = (theChain) => {
   const currentChain = duplicate(theChain)
   if(theChain.length >= 2) {
-    currentChain[1].transactions = [ { eenie: "meenie", ...currentChain[1].transactions } ]
+    currentChain[1].pageContent.transactions = [ { eenie: "meenie", ...currentChain[1].pageContent.transactions } ]
   }
 
   return currentChain
@@ -49,7 +49,7 @@ module.exports = {
     return currentChain
   },
   mine: (theChain) => {
-    const currentChain = duplicate(theChain)
+    let currentChain = duplicate(theChain)
     const currentPage = currentChain
       .slice(-1)
       .pop()
@@ -70,7 +70,7 @@ module.exports = {
         pageHash: "",
       }
 
-      addPage(theChain, newPage)
+      currentChain = addPage(currentPage, newPage)
     }
 
     return currentChain
