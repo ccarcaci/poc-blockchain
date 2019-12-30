@@ -37,6 +37,10 @@ The main service is the Ledger (/ledger) that encapsulate the entire blockchain 
 
 **GET /current-page** (Shows the current opened page of the chain)
 
+**GET /inspect** (Inspect the current chain against tampering)
+
+**GET /tamper** (Tamper the chain making it invalid)
+
 The remaining services works as support.
 
 **Generator (/generator)** uses Reddit posts to generate transactions.

@@ -6,8 +6,21 @@ const url = require("url")
 const fs = require("fs")
 
 const logger = require("./logger")
+const store = require("./store").initialize()
 const chain = require("./chain")
 const configs = require("./configs")
+const pipe = require("./pipe")
+
+store.save([
+  {
+    pageContent: {
+      transactions: [ ],
+      previousPageHash: "",
+      padding: "",
+    },
+    pageHash: "",
+  },
+])
 
 const httpsOptions = {
   // eslint-disable-next-line no-undef
@@ -26,6 +39,8 @@ const routing = (request, response) => {
   else if(request.method === "GET" && action.pathname === "/chain") { getChain(response) }
   else if(request.method === "POST" && action.pathname === "/transaction") { addTransaction(request, response) }
   else if(request.method === "GET" && action.pathname === "/current-page") { getCurrentPage(response) }
+  else if(request.method === "GET" && action.pathname === "/inspect") { inspect(response) }
+  else if(request.method === "GET" && action.pathname === "/tamper") { tamper(response) }
   else { fallbackRoute(response) }
 }
 
@@ -38,7 +53,7 @@ httpsServer.listen(httpsPort, () => logger.info(`HTTPS Server on port ${httpsPor
 // Routing Functions
 
 const rootRoute = (response) => {
-  response.writeHead(200, { "Content-Type": "text/plain" })
+  response.writeHead(200)
   response.end()
 }
 const fallbackRoute = (response) => {
@@ -47,12 +62,12 @@ const fallbackRoute = (response) => {
 }
 const getChain = (response) => {
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(JSON.stringify(chain.full()))
+  response.write(JSON.stringify(store.load()))
   response.end()
 }
 const addTransaction = (request, response) => {
   getBody(request).then((transaction) => {
-    chain.addTransaction(transaction)
+    store.save(chain.addTransaction(store.load(), transaction))
 
     response.writeHead(200)
     response.end()
@@ -60,8 +75,24 @@ const addTransaction = (request, response) => {
 }
 const getCurrentPage = (response) => {
   response.writeHead(200, { "Content-Type": "application/json" })
-  response.write(chain.full().slice(-1))
+  response.write(store.load().slice(-1))
   response.end()
+}
+const inspect = (response) => {
+  response.writeHead(200, { "Content-Type": "text/plain" })
+
+  if(chain.inspect(store.load())) {
+    response.write("OK")
+  } else {
+    response.write("KO")
+  }
+
+  response.end()
+}
+const tamper = (response) => {
+  pipe(store.load(), (theChain) => store.save(theChain))(chain.tamper)
+  response.writeHead(200)
+  response.end()  
 }
 
 // Server Functions
@@ -73,5 +104,4 @@ const getBody = (request) => new Promise((resolve) => {
 })
 
 // Mining
-
-setInterval(() => chain.mine(), configs.miningInterval)
+setInterval(() => pipe(store.load(), (theChain) => store.save(theChain))(chain.mine), configs.miningInterval)

@@ -21,7 +21,7 @@ services:
       LEDGER_URL: http://ledger:3000/transaction
       REPO_FILENAME: RC_2005-12.bz2
       MINIMUM_TIME: 400
-      GENERATOR_INTERVAL: 400
+      GENERATOR_INTERVAL: 800
     ports:
       - 4229:9229
     depends_on:
