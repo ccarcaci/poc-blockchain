@@ -6,7 +6,8 @@
   "scripts": {
     "start:dev": "nodemon index.js",
     "linter": "eslint --fix ./",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "npm run test -- --watch"
   },
   "author": "",
   "license": "EUPL-1.2",
