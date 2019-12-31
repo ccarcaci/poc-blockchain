@@ -6,7 +6,7 @@ const pipe = require("./pipe")
 
 const duplicate = (content) => pipe(content)(JSON.stringify, JSON.parse)
 
-const addPage = (theChain, newPage) => pipe(theChain)(duplicate, (dupChain) => [ dupChain, newPage ])
+const addPage = (theChain, newPage) => pipe(theChain)(duplicate, (dupChain) => [ ...dupChain, newPage ])
 const chainingHashInspector = (theChain) => {
   if(theChain.length <= 1) { return theChain }
 
@@ -30,7 +30,7 @@ const hashVerification = (theChain) => {
 }
 const tampering = (theChain) => {
   const currentChain = duplicate(theChain)
-  if(theChain.length >= 2) {
+  if(currentChain.length >= 2) {
     currentChain[1].pageContent.transactions = [ { eenie: "meenie", ...currentChain[1].pageContent.transactions } ]
   }
 
@@ -70,15 +70,14 @@ module.exports = {
         pageHash: "",
       }
 
-      currentChain = addPage(currentPage, newPage)
+      currentChain = addPage(currentChain, newPage)
     }
 
     return currentChain
   },
   inspect: (theChain) => pipe(
     theChain,
-    () => true,
-    () => false)(
+    () => true)(
       chainingHashInspector,
       hashVerification),
   tamper: (theChain) => pipe(theChain)(tampering)
